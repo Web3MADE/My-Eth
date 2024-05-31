@@ -1,4 +1,4 @@
-package eth.utils;
+package eth.types;
 
 import java.math.BigDecimal;
 
