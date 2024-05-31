@@ -1,7 +1,7 @@
 package eth.entities;
 
 import java.util.List;
-import eth.utils.PricePoint;
+import eth.types.PricePoint;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 
