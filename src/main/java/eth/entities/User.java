@@ -2,10 +2,9 @@ package eth.entities;
 
 import java.util.List;
 import eth.types.PricePoint;
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
 
-@MongoEntity(collection = "Users")
+// @MongoEntity(collection = "Users")
 public class User extends ReactivePanacheMongoEntity {
     public String name;
     public String email;

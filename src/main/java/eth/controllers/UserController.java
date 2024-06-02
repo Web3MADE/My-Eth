@@ -2,13 +2,11 @@ package eth.controllers;
 
 import eth.entities.User;
 import eth.services.UserService;
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -20,21 +18,25 @@ import jakarta.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserController {
 
+    public static class CreateUserRequest {
+        public String name;
+        public String email;
+    }
+
     @Inject
     UserService userService;
 
     @POST
-    @Path("create")
+    @Path("/create")
     @PermitAll
-    @WithTransaction
-    public Uni<User> createUser(String name, String email) {
+    public Uni<User> createUser(CreateUserRequest userRequest) {
 
-        if (name == null || email == null) {
+        if (userRequest.name == null || userRequest.email == null) {
             return Uni.createFrom()
-                    .failure(new IllegalArgumentException("No name or email passed!"));
+                    .failure(new IllegalArgumentException("No userRequest.name or email passed!"));
         }
 
-        return userService.createUser(name, email);
+        return userService.createUser(userRequest.name, userRequest.email);
     }
 
     // TODO: this endpoint is still blocked by Azure -
@@ -49,12 +51,4 @@ public class UserController {
     // ctx.isSecure(), ctx.getAuthenticationScheme());
     // return helloReply;
     // }
-
-    @Path("hello")
-    @GET
-    @PermitAll
-    public String hello() {
-        return "Hello";
-    }
-
 }
