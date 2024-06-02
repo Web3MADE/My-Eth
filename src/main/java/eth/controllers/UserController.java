@@ -1,5 +1,6 @@
 package eth.controllers;
 
+import java.util.List;
 import eth.entities.User;
 import eth.services.UserService;
 import io.smallrye.mutiny.Uni;
@@ -7,6 +8,7 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -37,6 +39,12 @@ public class UserController {
         }
 
         return userService.createUser(userRequest.name, userRequest.email);
+    }
+
+    @GET
+    @PermitAll
+    public Uni<List<User>> getUsers() {
+        return userService.getUsers();
     }
 
     // TODO: this endpoint is still blocked by Azure -

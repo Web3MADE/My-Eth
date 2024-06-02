@@ -10,6 +10,10 @@ public class User extends ReactivePanacheMongoEntity {
     public String email;
     public List<PricePoint> pricePoints;
 
+    public User() {
+
+    }
+
     public User(String name, String email) {
         this.name = name;
         this.email = email;

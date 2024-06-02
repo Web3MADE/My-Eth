@@ -1,5 +1,6 @@
 package eth.services;
 
+import java.util.List;
 import eth.entities.User;
 import eth.repositories.UserRepository;
 import io.smallrye.mutiny.Uni;
@@ -14,6 +15,10 @@ public class UserService {
 
     public Uni<User> createUser(String name, String email) {
         return userRepo.createUser(name, email);
+    }
+
+    public Uni<List<User>> getUsers() {
+        return userRepo.getUsers();
     }
 
 
