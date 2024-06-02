@@ -11,4 +11,9 @@ public class User extends PanacheMongoEntity {
     public String email;
     public List<PricePoint> pricePoints;
 
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
 }
