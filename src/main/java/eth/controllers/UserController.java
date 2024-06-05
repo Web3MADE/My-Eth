@@ -57,7 +57,7 @@ public class UserController {
     // https://github.com/Azure-Samples/ms-identity-msal-java-samples/blob/main/1-server-side/README.md
     @GET
     @Path("/secured")
-    @RolesAllowed("**") // Allow ANY authenticated user, regardless of role
+    @RolesAllowed({"user"})
     public String securedEndpoint(@Context SecurityContext ctx) {
         System.out.println("endpoint called, only USER.READ allowed");
         Principal caller = ctx.getUserPrincipal();
