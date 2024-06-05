@@ -1,10 +1,12 @@
 package eth.controllers;
 
+import java.security.Principal;
 import java.util.List;
 import eth.entities.User;
 import eth.services.UserService;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -12,7 +14,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path("/api/users")
 @ApplicationScoped
@@ -47,16 +51,21 @@ public class UserController {
         return userService.getUsers();
     }
 
-    // TODO: this endpoint is still blocked by Azure -
-    // SO CLOSE, we have JWT with User.Read, but this endpoint 401s every time....
-    // @GET
-    // @RolesAllowed({"User.Read"})
-    // public String securedEndpoint(@Context SecurityContext ctx) {
-    // System.out.println("endpoint called");
-    // Principal caller = ctx.getUserPrincipal();
-    // String name = caller == null ? "anonymous" : caller.getName();
-    // String helloReply = String.format("hello + %s, isSecure: %s, authScheme: %s", name,
-    // ctx.isSecure(), ctx.getAuthenticationScheme());
-    // return helloReply;
-    // }
+
+    // TODO: Master Quarkus first, before continuing this project!
+    // Tutorial I was following:
+    // https://github.com/Azure-Samples/ms-identity-msal-java-samples/blob/main/1-server-side/README.md
+    @GET
+    @Path("/secured")
+    @RolesAllowed("**") // Allow ANY authenticated user, regardless of role
+    public String securedEndpoint(@Context SecurityContext ctx) {
+        System.out.println("endpoint called, only USER.READ allowed");
+        Principal caller = ctx.getUserPrincipal();
+        String name = caller == null ? "anonymous" : caller.getName();
+        String helloReply = String.format("hello + %s, isSecure: %s, authScheme: %s", name,
+                ctx.isSecure(), ctx.getAuthenticationScheme());
+        return helloReply;
+    }
+
+
 }
