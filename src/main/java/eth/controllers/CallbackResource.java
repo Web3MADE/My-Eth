@@ -1,60 +1,67 @@
 package eth.controllers;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import com.microsoft.aad.msal4j.AuthorizationCodeParameters;
+import com.microsoft.aad.msal4j.ClientCredentialFactory;
+import com.microsoft.aad.msal4j.ConfidentialClientApplication;
+import com.microsoft.aad.msal4j.IAuthenticationResult;
+import eth.services.AuthService;
+import io.quarkus.security.identity.SecurityIdentity;
+import io.quarkus.security.runtime.QuarkusSecurityIdentity;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path("/callback")
 public class CallbackResource {
 
+    @Inject
+    AuthService authService;
+
     @GET
-    public Response handleCallback(@QueryParam("code") String code) {
+    public Response handleCallback(@QueryParam("code") String code,
+            @QueryParam("state") String state, @Context SecurityContext ctx) {
         try {
-            System.out.println("Code " + code);
-            String clientId = "d8e998b0-53df-4fcc-b71f-42bb01c2f117";
-            String clientSecret = "Gtp8Q~2rdbEJfpQMslW7geZOyrvCXFNxj7TqbaX3";
-            String tenantId = "7fd94692-bb1d-4bdf-98e9-c541e299481b";
-            String redirectUri = "http://localhost:8080/callback";
+            ConfidentialClientApplication app =
+                    ConfidentialClientApplication
+                            .builder("{your-client-id}",
+                                    ClientCredentialFactory
+                                            .createFromSecret("{your-client-secret}"))
+                            .authority("https://login.microsoftonline.com/{tenant}").build();
 
-            URL url = URI
-                    .create("https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/token")
-                    .toURL();
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
+            AuthorizationCodeParameters parameters = AuthorizationCodeParameters
+                    .builder(code, new URI("http://localhost:8080/callback"))
+                    .scopes(Collections.singleton("api://{your-api-audience}/.default")).build();
 
-            String data = "client_id=" + URLEncoder.encode(clientId, "UTF-8") + "&scope="
-                    + URLEncoder.encode("api://" + clientId + "/.default", "UTF-8") + "&code="
-                    + URLEncoder.encode(code, "UTF-8") + "&redirect_uri="
-                    + URLEncoder.encode(redirectUri, "UTF-8") + "&grant_type=authorization_code"
-                    + "&client_secret=" + URLEncoder.encode(clientSecret, "UTF-8");
+            CompletableFuture<IAuthenticationResult> future = app.acquireToken(parameters);
+            IAuthenticationResult result = future.join();
 
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = data.getBytes("UTF-8");
-                os.write(input, 0, input.length);
-            }
+            // Manually set up the SecurityContext with the authenticated user information
+            SecurityIdentity identity =
+                    QuarkusSecurityIdentity.builder().setPrincipal(new Principal() {
+                        @Override
+                        public String getName() {
+                            return result.account().username();
+                        }
+                    }).addRoles(Collections.singleton("user")) // Add roles if needed
+                            .build();
 
-            try (BufferedReader br =
-                    new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                return Response.ok(response.toString()).build();
-            }
-        } catch (IOException e) {
+            // Update the security context with the new identity
+            ctx.getUserPrincipal();
+
+            // Handle successful authentication and token acquisition
+            return Response.ok("User authenticated successfully").build();
+        } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(500).entity("Error: " + e.getMessage()).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Authentication failed")
+                    .build();
         }
     }
 
