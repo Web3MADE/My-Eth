@@ -5,8 +5,6 @@ import java.util.List;
 import eth.entities.User;
 import eth.services.UserService;
 import io.smallrye.mutiny.Uni;
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -34,7 +32,6 @@ public class UserController {
 
     @POST
     @Path("/create")
-    @PermitAll
     public Uni<User> createUser(CreateUserRequest userRequest) {
 
         if (userRequest.name == null || userRequest.email == null) {
@@ -46,7 +43,6 @@ public class UserController {
     }
 
     @GET
-    @PermitAll
     public Uni<List<User>> getUsers() {
         return userService.getUsers();
     }
@@ -57,14 +53,29 @@ public class UserController {
     // https://github.com/Azure-Samples/ms-identity-msal-java-samples/blob/main/1-server-side/README.md
     @GET
     @Path("/secured")
-    @RolesAllowed({"user"})
+    // @RolesAllowed({"user"}) // This is configured in Keycloak NOT server code by
+    // quarkus-keycloak-authorization extension, as it decouples Code auth from infrastructure auth
     public String securedEndpoint(@Context SecurityContext ctx) {
-        System.out.println("endpoint called, only USER.READ allowed");
+        System.out.println("Only Admins can access!");
         Principal caller = ctx.getUserPrincipal();
         String name = caller == null ? "anonymous" : caller.getName();
         String helloReply = String.format("hello + %s, isSecure: %s, authScheme: %s", name,
                 ctx.isSecure(), ctx.getAuthenticationScheme());
         return helloReply;
+    }
+
+    // TODO: understand how to set permissions/scopes to Resources
+    // This decouples code from authorization settings
+    @GET
+    @Path("/unauthorized")
+    public String unauthorized(@Context SecurityContext ctx) {
+        System.out.println("unauthorized called");
+        Principal caller = ctx.getUserPrincipal();
+        String name = caller == null ? "anonymous" : caller.getName();
+        String helloReply = String.format("hello + %s, isSecure: %s, authScheme: %s", name,
+                ctx.isSecure(), ctx.getAuthenticationScheme());
+        return helloReply;
+
     }
 
 
