@@ -27,17 +27,18 @@ public class BinanceWebSocketClient {
     @PostConstruct
     public void connect() {
         try {
-            System.out.println("Connect post construct BinanceWebSocketClient");
+            jsonParser = new JsonParser();
             WebSocketStreamClient wsStreamClient = new WebSocketStreamClientImpl(); // defaults to
                                                                                     // live
                                                                                     // exchange
                                                                                     // unless
                                                                                     // stated.
 
-            wsStreamClient.symbolTicker("ethusdt", ((event) -> {
-                logger.info("Binance Event: " + event);
+            wsStreamClient.symbolTicker("btcusdt", ((event) -> {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
-                eventBus.request("eth-price", "eth-price is " + ethPrice);
+                logger.info("Binance Event: Eth Price = " + ethPrice);
+
+                // eventBus.request("eth-price", "eth-price is " + ethPrice);
                 wsStreamClient.closeAllConnections();
             }));
 
