@@ -12,4 +12,12 @@ public class PricePoint {
         this.price = price;
         this.notified = notified;
     }
+
+    public BigDecimal getPricePoint() {
+        return this.price;
+    }
+
+    public boolean getNotified() {
+        return this.notified;
+    }
 }
