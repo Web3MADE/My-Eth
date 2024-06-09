@@ -9,20 +9,10 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 
 @Path("/api/eth-price")
 public class PriceResource {
-
-    public static class SetPricePointRequest {
-        String userId;
-        PricePoint pricePoint;
-
-        public SetPricePointRequest(String userId, PricePoint pricePoint) {
-            this.userId = userId;
-            this.pricePoint = pricePoint;
-        }
-    }
-
     @Inject
     EventBus eventBus;
 
@@ -36,8 +26,10 @@ public class PriceResource {
     }
 
     @POST
-    public Uni<PricePoint> setPricePoint(SetPricePointRequest pricePointRequest) {
-        return priceService.setPricePoint(pricePointRequest.userId, pricePointRequest.pricePoint);
+    @Path("{userId}")
+    public Uni<PricePoint> setPricePoint(@PathParam("userId") String userId,
+            PricePoint pricePoint) {
+        return priceService.setPricePoint(userId, pricePoint);
     }
 
 
