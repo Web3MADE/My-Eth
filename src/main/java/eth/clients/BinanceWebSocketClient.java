@@ -38,7 +38,7 @@ public class BinanceWebSocketClient {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
                 logger.info("Binance Event: Eth Price = " + ethPrice);
 
-                // eventBus.request("eth-price", "eth-price is " + ethPrice);
+                eventBus.request("eth-price", "eth-price is " + ethPrice);
                 wsStreamClient.closeAllConnections();
             }));
 
