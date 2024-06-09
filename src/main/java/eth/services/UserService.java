@@ -40,6 +40,8 @@ public class UserService {
         return userRepo.getUserPricePoints(mappedObjectId);
     }
 
-
+    public Uni<List<PricePoint>> getAllPricePoints() {
+        return userRepo.getAllPricePoints();
+    }
 
 }

@@ -2,6 +2,7 @@ package eth.repositories;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.bson.types.ObjectId;
 import eth.entities.User;
 import eth.types.PricePoint;
@@ -41,6 +42,11 @@ public class UserRepository implements ReactivePanacheMongoRepository<User> {
     public Uni<List<PricePoint>> getUserPricePoints(ObjectId userId) {
         return findById(userId).onItem().ifNotNull().transform(user -> user.pricePoints).onItem()
                 .ifNull().failWith(new Exception("user not found"));
+    }
+
+    public Uni<List<PricePoint>> getAllPricePoints() {
+        return listAll().onItem().transform(users -> users.stream()
+                .flatMap(user -> user.pricePoints.stream()).collect(Collectors.toList()));
     }
 
 }
