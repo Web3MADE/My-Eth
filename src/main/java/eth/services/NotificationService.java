@@ -1,5 +1,7 @@
 package eth.services;
 
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,9 +12,16 @@ public class NotificationService {
     @Inject
     EventBus eventBus;
 
+    @ConsumeEvent("eth-price")
+    public Uni<String> consumeEthPrice(String ethPrice) {
+        System.out.println("eth-price service recieved " + ethPrice);
+        return Uni.createFrom().item(() -> ethPrice.toUpperCase());
+    }
+
     public void publishEthPriceEvent(String ethPrice) {
         eventBus.publish("eth-price", ethPrice);
     }
+
 
 
 }
