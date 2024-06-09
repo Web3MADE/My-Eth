@@ -1,36 +1,47 @@
 package eth.clients;
 
 import org.jboss.logging.Logger;
-import io.vertx.mutiny.core.Vertx;
-import io.vertx.mutiny.core.http.HttpClient;
-import io.vertx.mutiny.core.http.WebSocketClient;
+import com.binance.connector.client.WebSocketStreamClient;
+import com.binance.connector.client.impl.WebSocketStreamClientImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Startup;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class BinanceWebSocketClient {
-
-    private static final String WEBSOCKET_HOST = "stream.binance.com";
-
-    private static final String WEBSOCKET_URI = "/ws/ethusdt@trade";
-    @Inject
-    Vertx vertx;
     @Inject
     Logger logger;
 
+    // This is executed after dependency injection is done to perform any initialization.
+    // It is part of the CDI lifecycle, called once the bean is constructed an all deps injected
     @PostConstruct
     public void connect() {
-        HttpClient client = vertx.createHttpClient();
+        try {
+            System.out.println("Connect post construct BinanceWebSocketClient");
+            WebSocketStreamClient wsStreamClient = new WebSocketStreamClientImpl(); // defaults to
+                                                                                    // live
+                                                                                    // exchange
+                                                                                    // unless
+                                                                                    // stated.
 
-        WebSocketClient webSocketClient = new WebSocketClient(client);
-        // connect() method established the Websocket connection using the new method
-        webSocketClient.connect(WEBSOCKET_HOST, WEBSOCKET_URI).subscribe()
-                .with(webSocket -> webSocket.handler(buffer -> {
-                    String message = buffer.toString();
-                    System.out.println("Message received " + message);
-                    logger.info("Received message: " + message);
-                }), failure -> logger.error("Failed to connect to WebSocket: ", failure));
+            wsStreamClient.symbolTicker("btcusdt", ((event) -> {
+                logger.info("Binance Event: " + event);
+                wsStreamClient.closeAllConnections();
+            }));
+
+        } catch (Error error) {
+            System.out.println("Error in websocket: " + error.getMessage());
+        }
+
+    }
+
+    // Observe the Startup event of the API, which is a different lifecycle event compared to
+    // @PostConstruct
+    private void on(@Observes Startup event) {
+
     }
 
 }
+
