@@ -34,10 +34,10 @@ public class UserService {
     // are hit
     // If yes, then publish to EventBus (decouples services from each other)
     // and the notification service will listen for changes and send a notification to the user
-    public Uni<List<PricePoint>> getPricePoints(String userId) {
+    public Uni<List<PricePoint>> getUserPricePoints(String userId) {
         ObjectId mappedObjectId = new ObjectId(userId);
 
-        return userRepo.getPricePoints(mappedObjectId);
+        return userRepo.getUserPricePoints(mappedObjectId);
     }
 
 

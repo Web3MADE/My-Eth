@@ -50,8 +50,8 @@ public class UserController {
 
     @GET
     @Path("{userId}/price-points")
-    public Uni<List<PricePoint>> getPricePoint(@PathParam("userId") String userId) {
-        return userService.getPricePoints(userId);
+    public Uni<List<PricePoint>> getUserPricePoint(@PathParam("userId") String userId) {
+        return userService.getUserPricePoints(userId);
     }
 
 
