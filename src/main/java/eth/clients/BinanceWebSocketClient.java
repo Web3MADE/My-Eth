@@ -3,6 +3,8 @@ package eth.clients;
 import org.jboss.logging.Logger;
 import com.binance.connector.client.WebSocketStreamClient;
 import com.binance.connector.client.impl.WebSocketStreamClientImpl;
+import eth.utils.JsonParser;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -11,8 +13,14 @@ import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class BinanceWebSocketClient {
+
+    @Inject
+    EventBus eventBus;
+
     @Inject
     Logger logger;
+
+    private JsonParser jsonParser;
 
     // This is executed after dependency injection is done to perform any initialization.
     // It is part of the CDI lifecycle, called once the bean is constructed an all deps injected
@@ -26,8 +34,10 @@ public class BinanceWebSocketClient {
                                                                                     // unless
                                                                                     // stated.
 
-            wsStreamClient.symbolTicker("btcusdt", ((event) -> {
+            wsStreamClient.symbolTicker("ethusdt", ((event) -> {
                 logger.info("Binance Event: " + event);
+                String ethPrice = jsonParser.parseEthPriceJSON(event);
+                eventBus.request("eth-price", "eth-price is " + ethPrice);
                 wsStreamClient.closeAllConnections();
             }));
 
