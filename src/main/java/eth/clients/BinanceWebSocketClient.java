@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import com.binance.connector.client.WebSocketStreamClient;
 import com.binance.connector.client.impl.WebSocketStreamClientImpl;
 import eth.services.NotificationService;
+import eth.services.PriceService;
 import eth.utils.JsonParser;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,6 +14,9 @@ import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class BinanceWebSocketClient {
+
+    @Inject
+    PriceService priceService;
 
     @Inject
     NotificationService notificationService;
@@ -33,11 +37,14 @@ public class BinanceWebSocketClient {
                                                                                     // exchange
                                                                                     // unless
                                                                                     // stated.
-
+            // fetch all user's price points from DB
+            priceService.setAllPricePoints();
+            System.out.println("all price points of all users " + priceService.getAllPricePoints());
             wsStreamClient.symbolTicker("ethusdt", ((event) -> {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
                 logger.info("Binance Event: Eth Price = " + ethPrice);
-                // If user is authenticated, check their price points
+                // every 30 seconds, run a CRON job to check if any price points are met
+
                 notificationService.publishEthPriceEvent(ethPrice);
                 wsStreamClient.closeAllConnections();
             }));
