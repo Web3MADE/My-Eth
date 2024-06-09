@@ -1,7 +1,10 @@
 package eth.services;
 
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import eth.interfaces.BinanceClient;
+import eth.repositories.UserRepository;
+import eth.types.PricePoint;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,8 +17,17 @@ public class PriceService {
     @RestClient
     BinanceClient binanceClient;
 
+    @Inject
+    UserRepository userRepo;
+
     public Uni<Object> getEthPrice() {
         return binanceClient.getPrice("ETHUSDT").onItem().transform(res -> res.price);
+    }
+
+    public Uni<PricePoint> setPricePoint(String userId, PricePoint pricePoint) {
+        ObjectId mappedObjectId = new ObjectId(userId);
+
+        return userRepo.setPricePoint(mappedObjectId, pricePoint);
     }
 
     // This service automatically consumes price data from WebSocket
@@ -27,5 +39,7 @@ public class PriceService {
         System.out.println("eth-price service recieved " + ethPrice);
         return Uni.createFrom().item(() -> ethPrice.toUpperCase());
     }
+
+
 
 }
