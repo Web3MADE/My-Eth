@@ -31,7 +31,6 @@ public class UserController {
     UserService userService;
 
     @POST
-    @Path("/create")
     public Uni<User> createUser(CreateUserRequest userRequest) {
 
         if (userRequest.name == null || userRequest.email == null) {
