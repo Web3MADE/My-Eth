@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.List;
 import eth.entities.User;
 import eth.services.UserService;
+import eth.types.PricePoint;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,6 +12,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -46,6 +48,13 @@ public class UserController {
         return userService.getUsers();
     }
 
+
+    @POST
+    @Path("{userId}/price-points")
+    public Uni<PricePoint> setPricePoint(@PathParam("userId") String userId,
+            PricePoint pricePoint) {
+        return userService.setPricePoint(userId, pricePoint);
+    }
 
     // TODO: Master Quarkus first, before continuing this project!
     // Tutorial I was following:

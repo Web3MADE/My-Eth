@@ -1,15 +1,12 @@
 package eth.controllers;
 
 import eth.services.PriceService;
-import eth.types.PricePoint;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 
 @Path("/api/eth-price")
 public class PriceResource {
@@ -25,12 +22,12 @@ public class PriceResource {
         return priceService.getEthPrice();
     }
 
-    @POST
-    @Path("{userId}")
-    public Uni<PricePoint> setPricePoint(@PathParam("userId") String userId,
-            PricePoint pricePoint) {
-        return priceService.setPricePoint(userId, pricePoint);
-    }
+    // TODO: use SecurityIdentity to get current logged in user & fetch their pricePoints
+    // This will be checked during the BinanceWebSocket stream process to see if any price points
+    // are hit
+    // If yes, then publish to EventBus (decouples services from each other)
+    // and the notification service will listen for changes and send a notification to the user
+
 
 
 }
