@@ -13,9 +13,14 @@ import jakarta.ws.rs.Path;
 @Path("/api/eth-price")
 public class PriceResource {
 
-    public static class PricePointRequest {
+    public static class SetPricePointRequest {
         String userId;
         PricePoint pricePoint;
+
+        public SetPricePointRequest(String userId, PricePoint pricePoint) {
+            this.userId = userId;
+            this.pricePoint = pricePoint;
+        }
     }
 
     @Inject
@@ -31,7 +36,7 @@ public class PriceResource {
     }
 
     @POST
-    public Uni<PricePoint> setPricePoint(PricePointRequest pricePointRequest) {
+    public Uni<PricePoint> setPricePoint(SetPricePointRequest pricePointRequest) {
         return priceService.setPricePoint(pricePointRequest.userId, pricePointRequest.pricePoint);
     }
 
