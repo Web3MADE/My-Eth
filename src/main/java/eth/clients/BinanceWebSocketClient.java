@@ -34,7 +34,7 @@ public class BinanceWebSocketClient {
                                                                                     // unless
                                                                                     // stated.
 
-            wsStreamClient.symbolTicker("btcusdt", ((event) -> {
+            wsStreamClient.symbolTicker("ethusdt", ((event) -> {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
                 logger.info("Binance Event: Eth Price = " + ethPrice);
 
