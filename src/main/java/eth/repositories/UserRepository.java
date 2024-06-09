@@ -32,7 +32,9 @@ public class UserRepository implements ReactivePanacheMongoRepository<User> {
             }
             user.pricePoints.add(new PricePoint(pricePoint.price, pricePoint.notified));
             int index = user.pricePoints.size() - 1;
-            return Uni.createFrom().item(user.pricePoints.get(index));
+            // replaceWith = ignore the emtited Uni result, and replace with the
+            // user within the reactive chain
+            return user.persistOrUpdate().replaceWith(user.pricePoints.get(index));
         });
     }
 
