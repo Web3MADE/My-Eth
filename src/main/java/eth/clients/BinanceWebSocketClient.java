@@ -3,8 +3,8 @@ package eth.clients;
 import org.jboss.logging.Logger;
 import com.binance.connector.client.WebSocketStreamClient;
 import com.binance.connector.client.impl.WebSocketStreamClientImpl;
+import eth.services.NotificationService;
 import eth.utils.JsonParser;
-import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -15,7 +15,7 @@ import jakarta.inject.Inject;
 public class BinanceWebSocketClient {
 
     @Inject
-    EventBus eventBus;
+    NotificationService notificationService;
 
     @Inject
     Logger logger;
@@ -37,8 +37,8 @@ public class BinanceWebSocketClient {
             wsStreamClient.symbolTicker("ethusdt", ((event) -> {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
                 logger.info("Binance Event: Eth Price = " + ethPrice);
-
-                eventBus.publish("eth-price", "eth-price is " + ethPrice);
+                // If user is authenticated, check their price points
+                notificationService.publishEthPriceEvent(ethPrice);
                 wsStreamClient.closeAllConnections();
             }));
 
