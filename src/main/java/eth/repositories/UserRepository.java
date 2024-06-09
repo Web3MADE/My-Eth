@@ -38,4 +38,9 @@ public class UserRepository implements ReactivePanacheMongoRepository<User> {
         });
     }
 
+    public Uni<List<PricePoint>> getPricePoints(ObjectId userId) {
+        return findById(userId).onItem().ifNotNull().transform(user -> user.pricePoints).onItem()
+                .ifNull().failWith(new Exception("user not found"));
+    }
+
 }

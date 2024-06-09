@@ -48,6 +48,12 @@ public class UserController {
         return userService.getUsers();
     }
 
+    @GET
+    @Path("{userId}/price-points")
+    public Uni<List<PricePoint>> getPricePoint(@PathParam("userId") String userId) {
+        return userService.getPricePoints(userId);
+    }
+
 
     @POST
     @Path("{userId}/price-points")
