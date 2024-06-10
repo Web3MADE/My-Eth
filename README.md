@@ -26,7 +26,7 @@ sequenceDiagram
     end
 ```
 
-## Dev notes
+## Setup
 
 1. Start the Keycloak server in a local Docker container by navigating to `/src/main/docker/keycloak` and running `docker-compose up` in the terminal - this will start a Keycloak server on `http://localhost:8084/admin`
 
@@ -34,16 +34,33 @@ sequenceDiagram
 - Inside the new realm, you can create new users and define authentication and authorization config. Make sure to set the `valid redirect URIs` field to `http://localhost:8080/*` and the `web origins` to `http://localhost:8080`
 - To sign in to the Account view, as a user, go to `http://localhost:8084/realms/myrealm/account`
 - Thanks to `quarkus-keycloak-authorization` we can set roles/permissions in the keycloak admin console which abstracts the authorization logic AWAY from the application code.
+- Users are created **manually** via the admin console in keycloak.
 
-The flow is:
+## Authentication
+
+The Authenticaiton flow is:
 
 1. Keycloak server is started
 2. Quarkus dev server is started
 3. User signs in and gets redirected to Keycloak's registration UI
 4. On success, they are redirected back to my-eth-app
 
-- In the `/callback` method , the user is saved into MongoDB
+## Binance API & Price Points
+
+Currently, I am just calling the binance API directly, without using the binance-connector SDK. I originally wanted to use websockets (hence the SDK), but figured simply querying the `ethusdt` endpoint on a scheduled task was more effective.
+
+The `PriceCheckerService` has a scheduled job every 30 seocnds to ge theprice of ethereum and checks against all price points set by all users. These price points are set on server initialization, but ideally would fetch from DB either every 30 seconds or every hour.
+
+If a user's price point is hit (price point < eth price), then this is published to the event bus via `PricePointEvent` and the user would be notified.
+
+**Note**: The notification service logic for emailing/push notifications is not implemented - and requires production enviornment to do so.
+
+## Swagger
+
+Swagger-UI can be found at `http:localhost:8080/q/swagger-ui`
 
 ## TODO:
 
-- OIDC needs to be implemented with RBAC. Currently, the endpoints are not secured (maybe cause localhost) and so anyone can call them. Even though, in the Keycloak console I have created permissions and assigned them to the appropriate resources - perhaps there's a mapping issue going on somewhere. Anyway, move on to Websockets & Events for rest of the day & study OIDC implementation tonight.
+- Production Environment to deploy the app and notify users via email.
+- Unit tests for service methods (`PriceCheckerService`)
+- RBAC Authorization. I know how to set permissions and apply to resources, but when I test outside of Keycloak it doesn't seem to work.
