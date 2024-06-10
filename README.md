@@ -1,5 +1,31 @@
 # My Eth App
 
+# Architecture
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant App
+    participant PriceCheckerService
+    participant BinanceAPI
+    participant EventBus
+    participant NotificationService
+
+    User->>App: Sign in
+    User->>App: Set price point for ETH
+    App->>PriceCheckerService: Save price point
+    loop Every 30 seconds
+        PriceCheckerService->>BinanceAPI: Get ethusdt price
+        BinanceAPI-->>PriceCheckerService: Return latest price
+        PriceCheckerService->>PriceCheckerService: Check if any user price points are met
+        alt Price point met
+            PriceCheckerService->>EventBus: Publish eth-price event
+            EventBus->>NotificationService: Notify user with specific eth-price
+            NotificationService->>User: Send email or push notification
+        end
+    end
+```
+
 ## Dev notes
 
 1. Start the Keycloak server in a local Docker container by navigating to `/src/main/docker/keycloak` and running `docker-compose up` in the terminal - this will start a Keycloak server on `http://localhost:8084/admin`
