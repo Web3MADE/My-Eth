@@ -18,10 +18,11 @@ public class PriceCheckerService {
     PriceService priceService;
 
     // TODO: Unit test to confirm logic works as intended
-    @Scheduled(every = "60s")
+    @Scheduled(every = "30s")
     public void checkPrice() {
         priceService.getEthPrice().onItem().transform(ethPriceStr -> {
             BigDecimal ethPrice = new BigDecimal(ethPriceStr);
+            System.out.println("30 second check " + ethPrice);
             return filterPricePoints(ethPrice);
         }).subscribe().with(filteredPricePoints -> {
             // Handle the filtered price points
@@ -40,7 +41,5 @@ public class PriceCheckerService {
                 .collect(Collectors.toList());
 
     }
-
-
 
 }

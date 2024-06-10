@@ -42,9 +42,8 @@ public class BinanceWebSocketClient {
             System.out.println("all price points of all users " + priceService.getAllPricePoints());
             wsStreamClient.symbolTicker("ethusdt", ((event) -> {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
-                logger.info("Binance Event: Eth Price = " + ethPrice);
-                notificationService.publishEthPriceEvent(ethPrice);
-                // wsStreamClient.closeAllConnections();
+                logger.info("Binance Websocket Eth price " + ethPrice);
+                wsStreamClient.closeAllConnections();
             }));
 
         } catch (Error error) {
