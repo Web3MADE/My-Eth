@@ -2,6 +2,7 @@ package eth.controllers;
 
 import java.security.Principal;
 import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import eth.entities.User;
 import eth.services.UserService;
 import eth.types.PricePoint;
@@ -22,6 +23,8 @@ import jakarta.ws.rs.core.SecurityContext;
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "User Controller",
+        description = "Access and Set User Information, including user price-points")
 public class UserController {
 
     public static class CreateUserRequest {
