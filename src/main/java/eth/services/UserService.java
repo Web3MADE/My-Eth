@@ -23,6 +23,11 @@ public class UserService {
         return userRepo.getUsers();
     }
 
+    public Uni<User> getUserById(String userId) {
+        ObjectId mappObjectId = new ObjectId(userId);
+        return userRepo.getUserById(mappObjectId);
+    }
+
     public Uni<PricePoint> setPricePoint(String userId, PricePoint pricePoint) {
         ObjectId mappedObjectId = new ObjectId(userId);
 
