@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.SecurityContext;
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "User Controller",
         description = "Access and Set User Information, including user price-points")
-public class UserController {
+public class UserResource {
 
     public static class CreateUserRequest {
         public String name;
@@ -65,11 +65,10 @@ public class UserController {
         return userService.setPricePoint(userId, pricePoint);
     }
 
-    // TODO: Master Quarkus first, before continuing this project!
-    // Tutorial I was following:
-    // https://github.com/Azure-Samples/ms-identity-msal-java-samples/blob/main/1-server-side/README.md
     @GET
     @Path("/secured")
+    // TODO: understand how to set permissions/scopes to Resources
+    // This decouples code from authorization settings
     // @RolesAllowed({"user"}) // This is configured in Keycloak NOT server code by
     // quarkus-keycloak-authorization extension, as it decouples Code auth from infrastructure auth
     public String securedEndpoint(@Context SecurityContext ctx) {
@@ -80,20 +79,5 @@ public class UserController {
                 ctx.isSecure(), ctx.getAuthenticationScheme());
         return helloReply;
     }
-
-    // TODO: understand how to set permissions/scopes to Resources
-    // This decouples code from authorization settings
-    @GET
-    @Path("/unauthorized")
-    public String unauthorized(@Context SecurityContext ctx) {
-        System.out.println("unauthorized called");
-        Principal caller = ctx.getUserPrincipal();
-        String name = caller == null ? "anonymous" : caller.getName();
-        String helloReply = String.format("hello + %s, isSecure: %s, authScheme: %s", name,
-                ctx.isSecure(), ctx.getAuthenticationScheme());
-        return helloReply;
-
-    }
-
 
 }
