@@ -20,4 +20,12 @@ public class PricePoint {
     public boolean getNotified() {
         return this.notified;
     }
+
+    public void setPricePoint(BigDecimal price) {
+        this.price = price;
+    }
+
+    public void setNotified(Boolean notified) {
+        this.notified = notified;
+    }
 }

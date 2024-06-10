@@ -43,10 +43,8 @@ public class BinanceWebSocketClient {
             wsStreamClient.symbolTicker("ethusdt", ((event) -> {
                 String ethPrice = jsonParser.parseEthPriceJSON(event);
                 logger.info("Binance Event: Eth Price = " + ethPrice);
-                // every 30 seconds, run a CRON job to check if any price points are met
-
                 notificationService.publishEthPriceEvent(ethPrice);
-                wsStreamClient.closeAllConnections();
+                // wsStreamClient.closeAllConnections();
             }));
 
         } catch (Error error) {

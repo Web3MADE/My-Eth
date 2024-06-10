@@ -14,13 +14,16 @@ public class NotificationService {
 
     @ConsumeEvent("eth-price")
     public Uni<String> consumeEthPrice(String ethPrice) {
-        System.out.println("eth-price service recieved " + ethPrice);
+        System.out.println("eth-price consumed " + ethPrice);
         return Uni.createFrom().item(() -> ethPrice.toUpperCase());
     }
 
     public void publishEthPriceEvent(String ethPrice) {
         eventBus.publish("eth-price", ethPrice);
     }
+
+    // notification service method to notify user (push notification/email)
+    // how to mock this in UI?
 
 
 

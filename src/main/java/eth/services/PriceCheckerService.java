@@ -17,14 +17,26 @@ public class PriceCheckerService {
     @Inject
     PriceService priceService;
 
-    @Scheduled(every = "30s")
+    // TODO: Unit test to confirm logic works as intended
+    @Scheduled(every = "60s")
     public void checkPrice() {
-
+        priceService.getEthPrice().onItem().transform(ethPriceStr -> {
+            BigDecimal ethPrice = new BigDecimal(ethPriceStr);
+            return filterPricePoints(ethPrice);
+        }).subscribe().with(filteredPricePoints -> {
+            // Handle the filtered price points
+            filteredPricePoints.forEach(pricePoint -> {
+                pricePoint.setNotified(true);
+                notificationService.publishEthPriceEvent(new String(pricePoint.toString()));
+                System.out.println("Price point met: " + pricePoint);
+            });
+        });
     }
 
     public List<PricePoint> filterPricePoints(BigDecimal price) {
         return priceService.getAllPricePoints().stream()
-                .filter(pricePoint -> pricePoint.getPricePoint().compareTo(price) >= 0)
+                .filter(pricePoint -> pricePoint.getPricePoint().compareTo(price) >= 0
+                        && !pricePoint.notified)
                 .collect(Collectors.toList());
 
     }

@@ -22,7 +22,7 @@ public class PriceService {
 
     private List<PricePoint> allPricePoints = new ArrayList<>();
 
-    public Uni<Object> getEthPrice() {
+    public Uni<String> getEthPrice() {
         return binanceClient.getPrice("ETHUSDT").onItem().transform(res -> res.price);
     }
 

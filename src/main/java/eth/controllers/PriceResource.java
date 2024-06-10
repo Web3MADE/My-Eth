@@ -18,7 +18,7 @@ public class PriceResource {
 
     @GET
     @PermitAll
-    public Uni<Object> getEthPrice() {
+    public Uni<String> getEthPrice() {
         return priceService.getEthPrice();
     }
 
