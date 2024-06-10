@@ -61,6 +61,6 @@ Swagger-UI can be found at `http:localhost:8080/q/swagger-ui`
 
 ## TODO:
 
-- Production Environment to deploy the app and notify users via email.
+- Production Environment to deploy the app and notify users via email (REMEMBER TO MAKE NEW AZURE SECRETS FOR EVERYTHING)
 - Unit tests for service methods (`PriceCheckerService`)
 - RBAC Authorization. I know how to set permissions and apply to resources, but when I test outside of Keycloak it doesn't seem to work.
