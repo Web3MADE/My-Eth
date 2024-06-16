@@ -19,36 +19,40 @@ jobs:
       - name: Set up Java version
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '21'
+          distribution: "zulu"
+          java-version: "21"
 
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Build native executable with Maven
+        run: mvn package -Dnative -Dquarkus.native.container-build=true
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v2
         with:
-          name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          login-server: myethregistry.azurecr.io
+          username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Build Docker image
+        # TODO: append Pull-Request number to image tag
+        run: docker build -f src/main/docker/Dockerfile.native -t myethregistry.azurecr.io/myapp:v1 .
+
+      - name: Push Docker image to ACR
+        run: docker push myethregistry.azurecr.io/myapp:v1
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Production'
+      name: "Production"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
-  
+
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: java-app
-      
       - name: Login to Azure
         uses: azure/login@v1
         with:
+          # TODO: create new client & tenant ID, set values in GH secrets
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_56F4A6407CB74731BDC54B8B1CEB1901 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C0590B1E24DC4DA2AB52EEA6C95B7E91 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_33AD0D4B817F4AA4BE4A251189E36D98 }}
@@ -57,7 +61,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'my-eth'
-          slot-name: 'Production'
-          package: '*.jar'
-          
+          app-name: "my-eth"
+          slot-name: "Production"
+          images: myethregistry.azurecr.io/myapp:v1
