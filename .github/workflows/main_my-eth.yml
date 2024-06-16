@@ -25,19 +25,20 @@ jobs:
       - name: Build native executable with Maven
         run: mvn package -Dnative -Dquarkus.native.container-build=true
 
-      - name: Log in to Azure Container Registry
-        uses: azure/docker-login@v2
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
         with:
-          login-server: myethregistry.azurecr.io
-          username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
-          password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build Docker image
-        # TODO: append Pull-Request number to image tag
-        run: docker build -f src/main/docker/Dockerfile.native -t myethregistry.azurecr.io/myapp:v${{ github.run_number }} .
-
-      - name: Push Docker image to ACR
-        run: docker push myethregistry.azurecr.io/myapp:v${{ github.run_number }}
+      - name: "Build and push image"
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - run: |
+          docker build -f src/main/docker/Dockerfile.native -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/my-eth-app:${{ github.sha }} .
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/my-eth-app:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,13 +50,10 @@ jobs:
       id-token: write #This is required for requesting the JWT
 
     steps:
-      - name: Login to Azure
+      - name: "Login via Azure CLI"
         uses: azure/login@v1
         with:
-          # TODO: create new client & tenant ID, set values in GH secrets
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_56F4A6407CB74731BDC54B8B1CEB1901 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C0590B1E24DC4DA2AB52EEA6C95B7E91 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_33AD0D4B817F4AA4BE4A251189E36D98 }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure Container Instances
         uses: "azure/aci-deploy@v1"
