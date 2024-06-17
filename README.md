@@ -61,6 +61,13 @@ Swagger-UI can be found at `http:localhost:8080/q/swagger-ui`
 
 ## TODO:
 
-- Production Environment to deploy the app and notify users via email (REMEMBER TO MAKE NEW AZURE SECRETS FOR EVERYTHING)
-- Unit tests for service methods (`PriceCheckerService`)
-- RBAC Authorization. I know how to set permissions and apply to resources, but when I test outside of Keycloak it doesn't seem to work.
+## Azure Kubernetes Service (AKS)
+
+Deploy the Quarkus, Keycloak and MongoDB containers via the Azure Kubernetes Service for learning and orchestration of all apps and backing services.
+
+1. Finish `docker-compose.yml` file in `src/main/docker/kubernetes` directory
+2. Test locally via Docker desktop multi-platform images (MacOS works with ARM architecture, Azure works with AMD architecture)
+3. Crate github action to deploy to kubernetes
+4. Confirm everything works as intended
+
+Finish this after focussing on React Native CLI from 17/06/24 until 21/06/24 if no other priorities arise. Else, get back to it at a later date.

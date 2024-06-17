@@ -1,0 +1,23 @@
+services:
+  quarkus-app:
+    build:
+      context: ./quarkus-app
+      dockerfile: Dockerfile
+
+  keycloak:
+    build:
+      context: ./keycloak-prod
+      dockerfile: Dockerfile
+  # TODO: find mongoDB image suitable for this
+  mongo:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
